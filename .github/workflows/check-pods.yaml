@@ -2,10 +2,7 @@ name: Check pods
 
 on:
   schedule:
-    - cron: '*/2 * * * *'
-#  push:
-#    branches:
-##      - main
+    - cron: '*/3 * * * *'
 
 jobs:
   build:
@@ -21,19 +18,19 @@ jobs:
           ssh-add - <<< "${{ secrets.SSH_KEY }}"
           ssh-keyscan -H ${{ secrets.JUMP_IP }} >> ~/.ssh/known_hosts
           ssh ${{ secrets.JUMP_USERNAME }}@${{ secrets.JUMP_IP}} ssh-keyscan ${{ secrets.K3SHOST_IP }} >> ~/.ssh/known_hosts
-          sshpass -p ${{ secrets.K3SHOST_PASS }} ssh -o ProxyCommand="ssh -W %h:%p ${{ secrets.JUMP_USERNAME }}@${{ secrets.JUMP_IP }}" ${{ secrets.K3SHOST_USERNAME }}@${{ secrets.K3SHOST_IP }} "kubectl get pods -A" >> report
+          sshpass -p ${{ secrets.K3S_PASS }} ssh -o ProxyCommand="ssh -W %h:%p ${{ secrets.JUMP_USERNAME }}@${{ secrets.JUMP_IP }}" ${{ secrets.K3SHOST_USERNAME }}@${{ secrets.K3SHOST_IP }} "kubectl get pods -A" >> ${{env.report-file}}
 
       - name: check-crashed-pods
         id: check-pods
         run: |
-          echo "$(cat  report | grep -v Running)" >> ${{env.report-file}} 2>&1
-          echo "pods-failed=$(cat report | grep -v Running | wc -l)" >> $GITHUB_OUTPUT
+          echo "$(cat  ${{env.report-file}} | grep -v Running)" >> ${{env.report-file}} 2>&1
+          echo "pods-failed=$(cat ${{env.report-file}} | grep -v Running | wc -l)" >> $GITHUB_OUTPUT
 
       - name: upload crashed pod's list
-        if: steps.check_pods.outputs.pods-fail > 1
+        if: steps.check-pods.outputs.pods-fail > 1
         uses: actions/upload-artifact@v3
         with:
-          path: crash_report
+          path: ${{ env.report-file }}
 
       - name: slack Notification
         if: steps.check-pods.outputs.pods-fail > 1
