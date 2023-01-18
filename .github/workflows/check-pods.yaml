@@ -21,7 +21,7 @@ jobs:
           ssh-add - <<< "${{ secrets.SSH_KEY }}"
           ssh-keyscan -H ${{ secrets.JUMP_IP }} >> ~/.ssh/known_hosts
           ssh ${{ secrets.JUMP_USERNAME }}@${{ secrets.JUMP_IP}} ssh-keyscan ${{ secrets.K3SHOST_IP }} >> ~/.ssh/known_hosts
-          sshpass -p ${{ secrets.K3S_PASS }} ssh -o ProxyCommand="ssh -W %h:%p ${{ secrets.JUMP_USERNAME }}@${{ secrets.JUMP_IP }}" ${{ secrets.K3SHOST_USERNAME }}@${{ secrets.K3SHOST_IP }} "kubectl get pods -A" >> ${{env.report-file}}
+          sshpass -p ${{ secrets.K3SHOST_PASS }} ssh -o ProxyCommand="ssh -W %h:%p ${{ secrets.JUMP_USERNAME }}@${{ secrets.JUMP_IP }}" ${{ secrets.K3SHOST_USERNAME }}@${{ secrets.K3SHOST_IP }} "kubectl get pods -A" >> ${{env.report-file}}
 
       - name: check-crashed-pods
         id: check-pods
