@@ -3,6 +3,9 @@ name: Check pods
 on:
   schedule:
     - cron: '*/3 * * * *'
+  push:
+    branches:
+      - master
 
 jobs:
   build:
@@ -23,7 +26,7 @@ jobs:
       - name: check-crashed-pods
         id: check-pods
         run: |
-          echo "$(cat  ${{env.report-file}} | grep -v Running)" >> ${{env.report-file}} 2>&1
+          echo "$(cat ${{env.report-file}} | grep -v Running)" >> ${{env.report-file}} 2>&1
           echo "pods-failed=$(cat ${{env.report-file}} | grep -v Running | wc -l)" >> $GITHUB_OUTPUT
 
       - name: upload crashed pod's list
