@@ -1,8 +1,11 @@
 name: Check pods
 
 on:
+  push:
+    branches:
+      - main
   schedule:
-    - cron: '*/3 * * * *'
+    - cron: '*/1 * * * *'
 
 jobs:
   build:
