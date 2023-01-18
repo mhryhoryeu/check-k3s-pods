@@ -30,13 +30,13 @@ jobs:
           echo "pods-failed=$(cat ${{env.report-file}} | grep -v Running | wc -l)" >> $GITHUB_OUTPUT
 
       - name: upload crashed pod's list
-        if: steps.check-pods.outputs.pods-fail > 1
+        if: steps.check-pods.outputs.pods-failed > 1
         uses: actions/upload-artifact@v3
         with:
           path: ${{ env.report-file }}
 
       - name: slack Notification
-        if: steps.check-pods.outputs.pods-fail > 1
+        if: steps.check-pods.outputs.pods-failed > 1
         uses: rtCamp/action-slack-notify@v2
         env:
           SLACK_CHANNEL: notification_channel
